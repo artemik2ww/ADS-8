@@ -1,13 +1,11 @@
 // Copyright 2021 NNTU-CS
-#include  <iostream>
-#include  <fstream>
-#include  <locale>
-#include  <cstdlib>
-#include  "bst.h"
-#include <string>
-#include <vector>
+#include "bst.h"
 #include <algorithm>
 #include <cctype>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
 
 void makeTree(BST<std::string>& tree, const char* filename) {
     std::ifstream file(filename);
@@ -32,7 +30,6 @@ void makeTree(BST<std::string>& tree, const char* filename) {
     }
     file.close();
 }
-
 bool compareNodes(const BST<std::string>::Node* a, const BST<std::string>::Node* b) {
     if (a->count != b->count) {
         return a->count > b->count;
@@ -47,11 +44,9 @@ void printFreq(BST<std::string>& tree) {
         std::cout << "Error creating result/freq.txt!" << std::endl;
         return;
     }
-
     for (const auto* node : nodes) {
         std::cout << node->key << ": " << node->count << std::endl;
         outFile << node->key << ": " << node->count << "\n";
     }
-
     outFile.close();
 }
