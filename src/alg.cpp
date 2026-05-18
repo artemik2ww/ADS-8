@@ -1,5 +1,6 @@
 // Copyright 2021 NNTU-CS
 #include "bst.h"
+
 #include <algorithm>
 #include <cctype>
 #include <fstream>
