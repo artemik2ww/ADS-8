@@ -15,7 +15,7 @@ class BST {
         int count;
         Node* left;
         Node* right;
-        Node(T value) : key(value), count(1), left(nullptr), right(nullptr) {}
+        explicit Node(T value) : key(value), count(1), left(nullptr), right(nullptr) {}
     };
  private:
     Node* root;
@@ -73,8 +73,15 @@ class BST {
     int depth() const {
         return getDepth(root);
     }
-    Node* search(T value) const {
-        return searchNode(root, value);
+    int search(T value) const {
+        Node* result = searchNode(root, value);
+        if (result != nullptr) {
+            return result->count;
+        }
+        return 0;
+    }
+    Node* getRoot() const {
+        return root;
     }
     std::vector<Node*> getAllNodes() const {
         std::vector<Node*> nodes;
