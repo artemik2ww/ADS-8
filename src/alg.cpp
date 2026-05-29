@@ -1,12 +1,9 @@
 // Copyright 2021 NNTU-CS
-#include "bst.h"
-
-#include <algorithm>
-#include <cctype>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
+#include  <iostream>
+#include  <fstream>
+#include  <locale>
+#include  <cstdlib>
+#include  "bst.h"
 
 void makeTree(BST<std::string>& tree, const char* filename) {
     std::ifstream file(filename);
@@ -14,40 +11,40 @@ void makeTree(BST<std::string>& tree, const char* filename) {
         std::cout << "File error!" << std::endl;
         return;
     }
-    std::string current_word = "";
-    int ch;
-    while ((ch = file.get()) != EOF) {
-        if (std::isalpha(ch) && isascii(ch)) {
-            current_word += std::tolower(ch);
+    std::string currentWord = "";
+    while (!file.eof()) {
+        int ch = file.get();
+        if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')) {
+            if (ch >= 'A' && ch <= 'Z') {
+                ch = ch + ('a' - 'A');
+            }
+            currentWord += static_cast<char>(ch);
         } else {
-            if (!current_word.empty()) {
-                tree.add(current_word);
-                current_word = "";
+            if (!currentWord.empty()) {
+                tree.insert(currentWord);
+                currentWord = "";
             }
         }
     }
-    if (!current_word.empty()) {
-        tree.add(current_word);
+    if (!currentWord.empty()) {
+        tree.insert(currentWord);
     }
     file.close();
 }
-bool compareNodes(const BST<std::string>::Node* a, const BST<std::string>::Node* b) {
-    if (a->count != b->count) {
-        return a->count > b->count;
-    }
-    return a->key < b->key;
-}
+
 void printFreq(BST<std::string>& tree) {
-    std::vector<BST<std::string>::Node*> nodes = tree.getAllNodes();
-    std::sort(nodes.begin(), nodes.end(), compareNodes);
+    BST<std::string>::Pair* arr = nullptr;
+    int size = tree.getSortedArray(arr);
     std::ofstream outFile("result/freq.txt");
     if (!outFile) {
-        std::cout << "Error creating result/freq.txt!" << std::endl;
+        std::cout << "Error creating result file!" << std::endl;
+        if (arr != nullptr) delete[] arr;
         return;
     }
-    for (const auto* node : nodes) {
-        std::cout << node->key << ": " << node->count << std::endl;
-        outFile << node->key << ": " << node->count << "\n";
+    for (int i = 0; i < size; i++) {
+        std::cout << arr[i].word << ": " << arr[i].count << std::endl;
+        outFile << arr[i].word << ": " << arr[i].count << "\n";
     }
     outFile.close();
+    delete[] arr;
 }
