@@ -15,7 +15,7 @@ class BST {
         Node* left;
         Node* right;
 
-        Node(T val) {
+        explicit Node(T val) {
             value = val;
             count = 1;
             left = nullptr;
@@ -46,7 +46,6 @@ class BST {
         }
         return node;
     }
-
     int getDepth(Node* node) {
         if (node == nullptr) {
             return 0;
@@ -99,29 +98,31 @@ class BST {
     }
 
     int depth() {
-        return getDepth(root);
+        if (root == nullptr) {
+            return 0;
+        }
+        return getDepth(root) - 1;
     }
-
-    bool search(T val) {
-        return searchNode(root, val) != nullptr;
+    int search(T val) {
+        Node* res = searchNode(root, val);
+        if (res != nullptr) {
+            return res->count;
+        }
+        return 0;
     }
-
     struct Pair {
         T word;
         int count;
     };
-
     int getSortedArray(Pair*& outputArr) {
         int totalNodes = countUniqueNodes(root);
         if (totalNodes == 0) {
             outputArr = nullptr;
             return 0;
         }
-
         WordFreq* tempArr = new WordFreq[totalNodes];
         int index = 0;
         collectData(root, tempArr, index);
-
         for (int i = 0; i < totalNodes - 1; i++) {
             for (int j = 0; j < totalNodes - i - 1; j++) {
                 if (tempArr[j].count < tempArr[j + 1].count) {
@@ -142,4 +143,4 @@ class BST {
     }
 };
 
-#endif
+#endif  // INCLUDE_BST_H_
