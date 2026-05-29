@@ -1,24 +1,28 @@
+// Copyright 2021 NNTU-CS
 #ifndef INCLUDE_BST_H_
 #define INCLUDE_BST_H_
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include <algorithm>
 
 template <typename T>
 class BST {
- public:
+ private:
     struct Node {
-        T key;
+        T value;
         int count;
         Node* left;
         Node* right;
 
-        explicit Node(T value) : key(value), count(1), left(nullptr), right(nullptr) {}
+        Node(T val) {
+            value = val;
+            count = 1;
+            left = nullptr;
+            right = nullptr;
+        }
     };
 
- private:
     Node* root;
 
     void clear(Node* node) {
@@ -29,78 +33,113 @@ class BST {
         }
     }
 
-    Node* addNode(Node* node, T value) {
+    Node* insertNode(Node* node, T val) {
         if (node == nullptr) {
-            return new Node(value);
+            return new Node(val);
         }
-        if (value < node->key) {
-            node->left = addNode(node->left, value);
-        } else if (value > node->key) {
-            node->right = addNode(node->right, value);
-        } else {
+        if (val == node->value) {
             node->count++;
+        } else if (val < node->value) {
+            node->left = insertNode(node->left, val);
+        } else {
+            node->right = insertNode(node->right, val);
         }
         return node;
     }
 
-    int getDepth(Node* node) const {
+    int getDepth(Node* node) {
         if (node == nullptr) {
-            return -1;
+            return 0;
         }
         int leftDepth = getDepth(node->left);
         int rightDepth = getDepth(node->right);
-        return 1 + std::max(leftDepth, rightDepth);
+        return std::max(leftDepth, rightDepth) + 1;
     }
 
-    Node* searchNode(Node* node, T value) const {
-        if (node == nullptr || node->key == value) {
+    Node* searchNode(Node* node, T val) {
+        if (node == nullptr || node->value == val) {
             return node;
         }
-        if (value < node->key) {
-            return searchNode(node->left, value);
+        if (val < node->value) {
+            return searchNode(node->left, val);
         }
-        return searchNode(node->right, value);
+        return searchNode(node->right, val);
     }
 
-    void collectNodes(Node* node, std::vector<Node*>& nodes) const {
+    struct WordFreq {
+        T word;
+        int count;
+    };
+
+    void collectData(Node* node, WordFreq* arr, int& index) {
         if (node == nullptr) return;
-        collectNodes(node->left, nodes);
-        nodes.push_back(node);
-        collectNodes(node->right, nodes);
+        collectData(node->left, arr, index);
+        arr[index].word = node->value;
+        arr[index].count = node->count;
+        index++;
+        collectData(node->right, arr, index);
+    }
+
+    int countUniqueNodes(Node* node) {
+        if (node == nullptr) return 0;
+        return countUniqueNodes(node->left) + countUniqueNodes(node->right) + 1;
     }
 
  public:
-    BST() : root(nullptr) {}
+    BST() {
+        root = nullptr;
+    }
 
     ~BST() {
         clear(root);
     }
 
-    void add(T value) {
-        root = addNode(root, value);
+    void insert(T val) {
+        root = insertNode(root, val);
     }
 
-    int depth() const {
+    int depth() {
         return getDepth(root);
     }
 
-    int search(T value) const {
-        Node* result = searchNode(root, value);
-        if (result != nullptr) {
-            return result->count;
+    bool search(T val) {
+        return searchNode(root, val) != nullptr;
+    }
+
+    struct Pair {
+        T word;
+        int count;
+    };
+
+    int getSortedArray(Pair*& outputArr) {
+        int totalNodes = countUniqueNodes(root);
+        if (totalNodes == 0) {
+            outputArr = nullptr;
+            return 0;
         }
-        return 0;
-    }
 
-    Node* getRoot() const {
-        return root;
-    }
+        WordFreq* tempArr = new WordFreq[totalNodes];
+        int index = 0;
+        collectData(root, tempArr, index);
 
-    std::vector<Node*> getAllNodes() const {
-        std::vector<Node*> nodes;
-        collectNodes(root, nodes);
-        return nodes;
+        for (int i = 0; i < totalNodes - 1; i++) {
+            for (int j = 0; j < totalNodes - i - 1; j++) {
+                if (tempArr[j].count < tempArr[j + 1].count) {
+                    WordFreq temp = tempArr[j];
+                    tempArr[j] = tempArr[j + 1];
+                    tempArr[j + 1] = temp;
+                }
+            }
+        }
+        outputArr = new Pair[totalNodes];
+        for (int i = 0; i < totalNodes; i++) {
+            outputArr[i].word = tempArr[i].word;
+            outputArr[i].count = tempArr[i].count;
+        }
+
+        delete[] tempArr;
+        return totalNodes;
     }
 };
 
-#endif  // INCLUDE_BST_H_
+#endif
